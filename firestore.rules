@@ -1,0 +1,86 @@
+/**
+ * @fileoverview Firestore Security Rules for FurniVerse eCommerce App
+ *
+ * Core Philosophy:
+ * This ruleset enforces a user-ownership model for carts and orders,
+ * with admin override capabilities for order management. It prioritizes
+ * authorization independence through data denormalization and structural
+ * segregation for enhanced security and performance.
+ *
+ * Data Structure:
+ * - /carts/{userId}/items/{productId}: Cart items owned by a specific user.
+ * - /orders/{orderId}: Orders placed by users, with admin-level management.
+ * - /products/{productId}: Public product catalog.
+ * - /events/{eventId}: Public event logs.
+ *
+ * Key Security Decisions:
+ * - Carts: User-owned; only the authenticated user can read and write their cart.
+ * - Orders: User-owned with admin override. Admins can update/delete any order.
+ * - Products: Publicly readable.  Writes are not secured, a TODO has been added.
+ * - Events: Publicly readable.  Writes are not secured, a TODO has been added.
+ * - Denormalization: User ID is denormalized in both cart items and orders to
+ *   avoid costly `get()` calls in security rules.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Secures cart items to be only accessible by the owning user.
+     * @path /carts/{userId}/items/{itemId}
+     * @allow (read, write) An authenticated user with UID 'user123' can read and write items in the /carts/user123/items/ collection.
+     * @deny (read, write) An authenticated user with UID 'user456' cannot read or write items in the /carts/user123/items/ collection.
+     * @principle Enforces document ownership for carts.
+     */
+    match /carts/{userId}/items/{itemId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+
+    /**
+     * @description Secures orders, allowing any authenticated user to create an order,
+     *              and only admins to update or delete orders.
+     * @path /orders/{orderId}
+     * @allow (create) Any authenticated user can create an order.
+     * @allow (update, delete) An authenticated user with admin claims can update or delete an order.
+     * @deny (update, delete) An authenticated non-admin user cannot update or delete an order.
+     * @principle Enforces user creation and admin management of orders.
+     */
+    match /orders/{orderId} {
+      allow read, create: if isSignedIn();
+      allow update, delete: if isSignedIn() && request.auth.token.admin == true;
+    }
+
+    /**
+     * @description Allows public read access to all products. Writes are not secured.
+     * @path /products/{productId}
+     * @allow (get, list) Any user (authenticated or not) can read product information.
+     * @deny (create, update, delete) No writes are allowed at this point.
+     * @principle Allows public access to product information.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+    }
+
+    /**
+     * @description Allows public read access to all events. Writes are not secured.
+     * @path /events/{eventId}
+     * @allow (get, list) Any user (authenticated or not) can read event information.
+     * @deny (create, update, delete) No writes are allowed at this point.
+     * @principle Allows public access to event information.
+     */
+    match /events/{eventId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+  }
+}

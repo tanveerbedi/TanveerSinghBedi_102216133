@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 97%; /* #FAF7F2 */
+    --foreground: 20 14.3% 4.1%;
+    --card: 40 33% 97%;
+    --card-foreground: 20 14.3% 4.1%;
+    --popover: 40 33% 97%;
+    --popover-foreground: 20 14.3% 4.1%;
+    --primary: 0 0% 11.4%; /* #1E1E1E */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 20 5.9% 90%;
+    --secondary-foreground: 20 14.3% 4.1%;
+    --muted: 20 5.9% 94%;
+    --muted-foreground: 20 8% 40%;
+    --accent: 30.1 52.9% 64.9%; /* #D4A373 */
+    --accent-foreground: 0 0% 11.4%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 20 5.9% 85%;
+    --input: 20 5.9% 85%;
+    --ring: 30.1 52.9% 64.9%;
+    --radius: 0.5rem;
+    --chart-1: 0 0% 11.4%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 20 10% 10%;
+    --foreground: 20 5% 95%;
+    --card: 20 10% 10%;
+    --card-foreground: 20 5% 95%;
+    --popover: 20 10% 10%;
+    --popover-foreground: 20 5% 95%;
+    --primary: 0 0% 98%; /* Lighter for dark mode */
+    --primary-foreground: 0 0% 11.4%; /* #1E1E1E */
+    --secondary: 20 10% 20%;
+    --secondary-foreground: 20 5% 95%;
+    --muted: 20 10% 20%;
+    --muted-foreground: 20 5% 65%;
+    --accent: 30.1 52.9% 64.9%; /* #D4A373 */
+    --accent-foreground: 0 0% 11.4%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 20 10% 30%;
+    --input: 20 10% 30%;
+    --ring: 30.1 52.9% 64.9%;
+    --chart-1: 0 0% 98%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: url("/textures/fabric-pattern.png");
+    background-size: 400px;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+    .animate-fade-in-up {
+        animation: fade-in-up 0.8s ease-out forwards;
+    }
+
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+@layer components {
+  .btn-cta {
+      @apply bg-accent text-accent-foreground hover:bg-accent/90;
+  }
+}
